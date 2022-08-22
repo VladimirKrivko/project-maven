@@ -15,9 +15,8 @@
         <javafx.controls.version>18.0.1</javafx.controls.version>
         <desktop.game.engine.version>1.0</desktop.game.engine.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
-        <maven.install.plugin.version>3.0.1</maven.install.plugin.version>
         <maven.dependency.plugin.version>3.3.0</maven.dependency.plugin.version>
-        <maven.assembly.plugin.version>3.4.2</maven.assembly.plugin.version>
+        <maven.jar.plugin.version>3.2.2</maven.jar.plugin.version>
         <maven.surefire.plugin.version>3.0.0-M7</maven.surefire.plugin.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
         <maven.compiler.plugin.version>3.10.1</maven.compiler.plugin.version>
@@ -50,48 +49,48 @@
     <build>
         <resources>
             <resource>
-                <directory>${project.build.directory}/lib</directory>
+                <directory>${project.build.directory}/dependencies</directory>
+                <targetPath>lib/</targetPath>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>${maven.install.plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <Rsrc-Main-Class>com.javarush.games.racer.RacerGame</Rsrc-Main-Class>
-                            <Class-Path>./</Class-Path>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${maven.dependency.plugin.version}</version>
+                <configuration>
+                    <outputDirectory>
+                        ${project.build.directory}/dependencies
+                    </outputDirectory>
+                    <includeScope>compile</includeScope>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>copy-dependencies</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
-                        <configuration>
-                            <includeScope>compile</includeScope>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.jar.plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>./</Class-Path>
+                            <Rsrc-Main-Class>com.javarush.games.racer.RacerGame</Rsrc-Main-Class>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -99,10 +98,11 @@
                 <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/StrangeTest.class</exclude>
+                        <exclude>StrangeTest</exclude>
                     </excludes>
                 </configuration>
             </plugin>
+
             <!-- Usual compilation Don't touch!-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
